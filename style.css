@@ -1,0 +1,60 @@
+body{
+  font-family: sans-serif;
+}
+h1{
+  text-align: center;
+}
+.instruction{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 20px;
+}
+.instruction-text{
+  font-weight: bold;
+  font-size: 20px;
+}
+
+
+.container{
+  display: flex;
+  height: 600px;
+  justify-content: center;
+  align-items: center;
+}
+.board{
+  height: 400px;
+  width: 400px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+}
+
+.cell{
+  font-size: 90px;
+  border: 1px solid black;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.cell:first-child,
+.cell:nth-child(2),
+.cell:nth-child(3){
+  border-top: none;
+}
+
+.cell:nth-child(3n-5){
+  border-left: none;
+}
+
+.cell:nth-child(3n){
+  border-right: none;
+}
+
+.cell:nth-child(7),
+.cell:nth-child(8),
+.cell:nth-child(9){
+  border-bottom: none;
+}
