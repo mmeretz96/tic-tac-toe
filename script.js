@@ -42,8 +42,13 @@ const displayController = (()=>{
   const addButtonListeners = () => {
     resetBtn.addEventListener("click", gameController.startGame)
   }
-  const fillCell = (cell, player) => {
-    cell.classList.add(`player${player.number}-bg`)
+  const fillCell = (cellNumber, player) => {
+    cells.forEach(cell =>{
+      if(cell.getAttribute("data") == cellNumber){
+        cell.classList.add(`player${player.number}-bg`)
+      }
+    })
+    
   }
 
   const highlightCombination = (combination) =>{
@@ -76,9 +81,15 @@ const displayController = (()=>{
 const gameController = (() => {
   let players = []
   let cellsActive = true
-
+  let aiGame = false
   const init = (player1Name, player2Name) => {
-    players.push(Player(1,player1Name),Player(2,player2Name))
+    
+    players.push(Player(1,player1Name))
+    if (!player2Name) {
+      aiGame = true
+      players.push(Player(2,"AI"))
+    }
+    if (player2Name) players.push(Player(2,player2Name))
     displayController.addCellListeners()
     displayController.addButtonListeners()
     startGame()
@@ -97,8 +108,7 @@ const gameController = (() => {
   }
 
   // return null if game isnt over
-  const getWinCombination = () => {
-    const board = gameBoard.getBoard()
+  const getWinCombination = (board = gameBoard.getBoard()) => {
     let winCombinations = [
       [0,1,2],[3,4,5],[6,7,8],
       [0,4,8],[2,4,6],[0,3,6],
@@ -115,9 +125,8 @@ const gameController = (() => {
   }
 
   const handleCellClick = (cell) => {
-    if (!cellsActive) return
-    if(!gameBoard.placeMarker(cell.getAttribute("data"), players[0])) return
-    displayController.fillCell(cell, players[0])
+    if (!cellsActive) return 
+    playerTurn(players[0],cell.getAttribute("data"))
     let winCombination
     if(winCombination = getWinCombination()){
       endGame(winCombination)
@@ -125,17 +134,56 @@ const gameController = (() => {
     }
     switchPlayer()
     displayController.renderInstruction(`${players[0].name}'s turn`)
+    if(aiGame){
+      makeAiMove()
+    }
+    
   }
 
+  const playerTurn = (player, cellNumber) => {
+    if(!gameBoard.placeMarker(cellNumber, player)) return 
+    displayController.fillCell(cellNumber, player)
+  }
+
+  const makeAiMove = () => {
+      let cellNumber = ai.getMove()
+      gameBoard.placeMarker(cellNumber, players[0])
+      displayController.fillCell(cellNumber, players[0])
+      if(winCombination = getWinCombination()){
+        endGame(winCombination)
+        return
+      }
+      switchPlayer()
+      displayController.renderInstruction(`${players[0].name}'s turn`)
+  }
   const endGame = (winCombo) =>{
     if (winCombo == "tie")return displayController.renderInstruction(`It's a tie!`)
     displayController.renderInstruction(`${players[0].name} has won`)
     displayController.highlightCombination(winCombo)
     cellsActive = false
+    if(players[0].name=="AI") switchPlayer()
+    
   }
 
   return {init, handleCellClick, startGame}
 })()
+
+
+const ai = (()=>{
+  const getMove = () =>{
+    let board = gameBoard.getBoard()
+    let cellNumber
+    let freeCells = []
+    board.forEach((cell,i) =>{
+      if(cell == ""){
+        freeCells.push(i)
+      }
+    })
+    return freeCells[Math.floor(Math.random()*freeCells.length)]
+  }
+  return {getMove}
+})()
+
 
 const startBtn = document.querySelector(".start")
 
@@ -144,6 +192,7 @@ startBtn.addEventListener("click", e => {
   let player1Name = document.getElementById("player1-name").value
   let player2Name = document.getElementById("player2-name").value
   if(!player1Name) player1Name = "Player 1"
-  if(!player2Name) player2Name = "Player 2"
   gameController.init(player1Name, player2Name)
 })
+
+
