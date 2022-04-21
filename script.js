@@ -1,3 +1,7 @@
+const Player = (number, name, color) =>{
+  return {number, name, color}
+}
+
 const gameBoard = (()=>{
   let board = ["","","","","","","","",""]
 
@@ -7,17 +11,19 @@ const gameBoard = (()=>{
 
   const placeMarker = (cellNumber, player) => {
     if(board[cellNumber] != "") return false
-    board[cellNumber] = player.symbol
+    board[cellNumber] = player
     return true
   }
 
   const reset = () => {
     board = ["","","","","","","","",""]
   }
+
   const isFull = () => {
     if (!board.includes("")) return true
     return false
   }
+
   return {isFull, getBoard, placeMarker, reset}
 })()
 
@@ -26,19 +32,23 @@ const displayController = (()=>{
   const instructions = document.querySelector(".instruction-text")
   const resetBtn = document.querySelector(".reset")
 
-  const renderBoard = () => {
+  const addCellListeners = () => {
     cells.forEach(cell => {
-      cell.innerText = gameBoard.getBoard()[cell.getAttribute("data")]
-    });
+      cell.addEventListener("click", e => gameController.handleCellClick(e.target))
+    })
   }
 
-  const fillCell = (cell, symbol) => {
-    cell.innerText = symbol
+  const addButtonListeners = () => {
+    resetBtn.addEventListener("click", gameController.startGame)
   }
+  const fillCell = (cell, player) => {
+    cell.classList.add(`player${player.number}-bg`)
+  }
+
   const highlightCombination = (combination) =>{
     console.log(combination)
     combination.forEach(number => {
-      cells[number].style.color = "red"
+      cells[number].classList.add("winning-cell")
     })
   }
 
@@ -48,47 +58,38 @@ const displayController = (()=>{
 
   const reset = () =>{
     cells.forEach(cell => {
-      cell.style.color = "black"
+      cell.classList.remove("player1-bg")
+      cell.classList.remove("player2-bg")
+      cell.classList.remove("winning-cell")
     })
   }
-  return {reset, renderBoard, fillCell, renderInstruction, highlightCombination}
+  return {addButtonListeners, addCellListeners, reset, fillCell, renderInstruction, highlightCombination}
 })()
 
-const Player = (symbol) =>{
-  return {symbol}
-}
+
 
 const gameController = (() => {
-  let players = [Player("X"), Player("O")]
+  let players = [Player(1,"alice","red"), Player(2,"bob", "green")]
+  let cellsActive = true
 
   const init = () => {
-    addCellListeners()
-    addButtonListeners()
+    displayController.addCellListeners()
+    displayController.addButtonListeners()
     startGame()
   }
 
   const startGame = () => {
     displayController.reset()
     gameBoard.reset()
-    displayController.renderBoard()
-    displayController.renderInstruction(`${players[0].symbol}'s turn`)
-  }
-
-  const addButtonListeners = () => {
-    document.querySelector(".reset").addEventListener("click", startGame)
-  }
-
-  const addCellListeners = () => {
-    document.querySelectorAll(".cell").forEach(cell => {
-      cell.addEventListener("click", e => handleCellClick(e.target))
-    })
+    cellsActive = true
+    displayController.renderInstruction(`${players[0].name}'s turn`)
   }
 
   const switchPlayer = () => {
     players.push(players.shift())
   }
 
-  const isGameOver = () => {
+  const getWinCombination = () => {
     const board = gameBoard.getBoard()
     let winCombinations = [
       [0,1,2],[3,4,5],[6,7,8],
@@ -110,27 +111,25 @@ const gameController = (() => {
   }
 
   const handleCellClick = (cell) => {
-    if(gameBoard.placeMarker(cell.getAttribute("data"), players[0])){
-      displayController.fillCell(cell,players[0].symbol)
-      let winCombo = isGameOver()
-      if(winCombo){
-        endGame(winCombo)
-        return
-      }
-      switchPlayer()
-      displayController.renderInstruction(`${players[0].symbol}'s turn`)
+    if (!cellsActive) return
+    if(!gameBoard.placeMarker(cell.getAttribute("data"), players[0])) return
+    displayController.fillCell(cell, players[0])
+    let winCombination
+    if(winCombination = getWinCombination()){
+      endGame(winCombination)
+      return
     }
+    switchPlayer()
+    displayController.renderInstruction(`${players[0].name}'s turn`)
   }
 
   const endGame = (winCombo) =>{
-    if (winCombo == "tie"){
-      displayController.renderInstruction(`It's a tie!`)
-      return
-    }
-    displayController.renderInstruction(`${players[0].symbol} has won`)
+    if (winCombo == "tie")return displayController.renderInstruction(`It's a tie!`)
+    displayController.renderInstruction(`${players[0].name} has won`)
     displayController.highlightCombination(winCombo)
+    cellsActive = false
   }
-  return {init}
+  return {init, handleCellClick, startGame}
 })()
 
 gameController.init()
