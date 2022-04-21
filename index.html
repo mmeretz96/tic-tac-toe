@@ -11,9 +11,10 @@
   <h1>Tic Tac Toe</h1>
   <div class="instruction">
     <p class="instruction-text"></p>
-    <button class="reset">Restart</button>
+    
   </div>
   <div class="container">
+    <button class="reset">Restart</button>
     <div class="board">
       <div class="cell" data="0"></div>
       <div class="cell" data="1"></div>
@@ -26,6 +27,18 @@
       <div class="cell" data="8"></div>
     </div>
     <div class="start-form">
+      <form action="">
+        <div class="p1">
+          <label for="player1-name">Player1:</label>
+          <input type="text" id="player1-name">
+        </div>
+        <div class="p2">
+          <label for="player2-name">Player2:</label>
+          <input type="text" id="player2-name">
+        </div>
+        <p>(Leave Player2 blank to play against AI)</p>
+        <button class="start">Start Game!</button>
+      </form>
     </div>
   </div>
 </body>

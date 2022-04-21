@@ -26,7 +26,7 @@ h1{
 }
 
 .winning-cell{
-  filter: brightness(0.86);
+  filter: invert();
 }
 
 .board .player1-bg{
@@ -38,6 +38,8 @@ h1{
 }
 .container{
   display: flex;
+  flex-direction: column;
+  gap: 15px;
   justify-content: center;
   align-items: center;
 }
@@ -48,6 +50,7 @@ h1{
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 1fr 1fr 1fr;
+  display: none;
 }
 
 .cell{
@@ -70,6 +73,7 @@ h1{
   color: white;
   padding: 10px 0;
   border-radius: 8px;
+  display: none;
 }
 
 .reset:hover{
@@ -79,4 +83,13 @@ h1{
 
 .reset:focus{
   outline: none;
+}
+
+form{
+  border: 1px solid black;
+  padding: 30px;
+  border-radius: 10px;
+  gap: 20px;
+  display: flex;
+  flex-direction: column;
 }
